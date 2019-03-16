@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Typography, TextField } from "@material-ui/core";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 import { connect } from "react-redux";
-import { useInterval, useShortcut } from "./utils";
-import { invertPlayState, setPurpose, reduceTime } from "./actions";
+import { useInterval } from "./utils";
+import { setPurpose, reduceTime } from "./actions";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -38,22 +38,20 @@ const PurposeTextField = styled(TextField)`
   }
 `;
 
-// BUG: purpose should be stored locally maybe...
-
-// BUG: if you click pause at 500ms until 0 it will say 0 but not actually be 0
+// TODO: maybe the timer bit should actually exist outside of the component?
 export const Timer = ({
   purpose,
-  firstPlay,
-  timeRemaining,
-  playing,
+  startedAt,
+  completedAt,
   onReduceTime,
-  onInvertPlayState,
-  onSetPurpose
+  onSetPurpose,
+  timeRemaining
 }) => {
   let interval = 100;
 
-  useInterval(onReduceTime, playing ? interval : null);
-  useShortcut(({ key }) => key === "Enter", onInvertPlayState);
+  useInterval(onReduceTime, !completedAt && startedAt ? interval : null);
+
+  // useShortcut(({ key }) => key === "Enter", onInvertPlayState);
 
   let [p, setPurpose] = useState(purpose);
   // This is a neat way to reset the internal purpose state whenever the external one changes.
@@ -67,9 +65,7 @@ export const Timer = ({
 
   return (
     <Container>
-      <Typography variant="h1" onClick={onInvertPlayState}>
-        {timeString}
-      </Typography>
+      <Typography variant="h1">{timeString}</Typography>
       <Purpose>
         {!purpose ? (
           <PurposeTextField
@@ -88,7 +84,6 @@ export const Timer = ({
               if (e.key === "Enter") {
                 e.preventDefault();
                 onSetPurpose(p);
-                onInvertPlayState();
               }
             }}
             value={p}
@@ -104,7 +99,6 @@ export const Timer = ({
 export default connect(
   ({ timer }) => timer,
   {
-    onInvertPlayState: invertPlayState,
     onSetPurpose: setPurpose,
     onReduceTime: reduceTime
   }

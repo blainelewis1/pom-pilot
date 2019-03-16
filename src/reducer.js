@@ -1,6 +1,6 @@
 import { combineReducers } from "redux";
 import {
-  INVERT_PLAY_STATE,
+  START_TIMER,
   TIME_ELAPSED,
   SET_PURPOSE,
   SET_POM_LENGTH,
@@ -12,62 +12,46 @@ import {
   REMOVE_SNACKBAR,
   ENQUEUE_SNACKBAR,
   SET_GOOGLE_API_KEY,
-  SET_GOOGLE_CLIENT_ID
+  SET_GOOGLE_CLIENT_ID,
+  SET_GOOGLE_ENABLED,
+  SET_GOOGLE_SIGNED_IN
 } from "./actions";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 
 let defaultTimer = {
-  playing: false,
   // The amount of time remaining in milliseconds. If direction is positive this is the time elapsed
   timeRemaining: 25 * MILLISECONDS_IN_A_MINUTE,
   purpose: "",
   // the timestamp when the timer was first started
-  firstPlay: null,
-  complete: false,
-  direction: -1
+  startedAt: null,
+  completedAt: null,
+  direction: -1,
+  notified: false
 };
 
 function timer(state = defaultTimer, action) {
   switch (action.type) {
-    case INVERT_PLAY_STATE:
-      let playing = state.playing;
-
-      if (state.purpose) {
-        playing = !playing;
-      }
-
-      let firstPlay = state.firstPlay;
-
-      if (!state.firstPlay && playing) {
-        firstPlay = Date.now();
-      }
-
+    case START_TIMER:
       return {
         ...state,
-        firstPlay,
-        playing
+        startedAt: Date.now()
       };
     case TIME_ELAPSED:
       let timeRemaining = state.timeRemaining + state.direction * action.amount;
-      playing = state.playing;
 
       if (timeRemaining < 0) {
         timeRemaining = 0;
-        playing = false;
       }
 
-      return { ...state, timeRemaining, playing };
+      return { ...state, timeRemaining };
     case SET_PURPOSE:
       return { ...state, purpose: action.value };
     case SETUP_TIMER:
       let newTimerState = { ...defaultTimer };
-      if (action.timerValues.playing) {
-        newTimerState.firstPlay = Date.now();
-      }
 
       return { ...newTimerState, ...action.timerValues };
     case TIMER_COMPLETE:
-      return { ...state, complete: Date.now() };
+      return { ...state, completedAt: Date.now() };
     default:
       return state;
   }
@@ -81,7 +65,9 @@ function settings(
     timerSound: "/alarm.mp3",
     minTime: 1 * MILLISECONDS_IN_A_MINUTE,
     googleApiKey: "",
-    googleClientId: ""
+    googleClientId: "",
+    googleEnabled: true,
+    googleSignedIn: false
   },
   action
 ) {
@@ -98,6 +84,10 @@ function settings(
       return { ...state, notifications: action.value };
     case SET_TIMER_SOUND:
       return { ...state, timerSound: action.value };
+    case SET_GOOGLE_ENABLED:
+      return { ...state, googleEnabled: action.value };
+    case SET_GOOGLE_SIGNED_IN:
+      return { ...state, googleSignedIn: action.value };
     default:
       return state;
   }

@@ -2,11 +2,13 @@ import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 import notify from "./notify";
 import { addToCalendar } from "./google";
 
-export const INVERT_PLAY_STATE = "INVERT_PLAY_STATE";
+export const START_TIMER = "START_TIMER";
 export const TIME_ELAPSED = "TIME_ELAPSED";
 export const SET_PURPOSE = "SET_PURPOSE";
 export const SETUP_TIMER = "SETUP_TIMER";
 export const TIMER_COMPLETE = "TIMER_COMPLETE";
+export const NOTIFY = "NOTIFY";
+export const ADD_TO_CALENDAR = "ADD_TO_CALENDAR";
 
 export const SET_POM_LENGTH = "SET_POM_LENGTH";
 export const SET_BREAK_LENGTH = "SET_BREAK_LENGTH";
@@ -14,12 +16,14 @@ export const SET_NOTIFICATIONS = "SET_NOTIFICATION";
 export const SET_TIMER_SOUND = "SET_TIMER_SOUND";
 export const SET_GOOGLE_API_KEY = "SET_GOOGLE_API_KEY";
 export const SET_GOOGLE_CLIENT_ID = "SET_GOOGLE_CLIENT_ID";
+export const SET_GOOGLE_ENABLED = "SET_GOOGLE_ENABLED";
+export const SET_GOOGLE_SIGNED_IN = "SET_GOOGLE_SIGNED_IN";
 
 export const ENQUEUE_SNACKBAR = "ENQUEUE_SNACKBAR";
 export const REMOVE_SNACKBAR = "REMOVE_SNACKBAR";
 
-export function invertPlayState() {
-  return { type: INVERT_PLAY_STATE };
+export function startTimer() {
+  return { type: START_TIMER };
 }
 
 export function reduceTime(amount) {
@@ -31,26 +35,34 @@ export function reduceTime(amount) {
   };
 }
 
-function timerComplete() {
+function timerComplete(notifyEnabled = true) {
   return function(dispatch, getState) {
-    dispatch({ type: TIMER_COMPLETE });
-    notify(getState().settings);
-    addToCalendar(getState().timer);
+    if (!getState().timer.completedAt) {
+      dispatch({ type: TIMER_COMPLETE });
+      if (notifyEnabled) {
+        dispatch(notify());
+      }
+      dispatch(addToCalendar(getState().timer));
+    }
   };
 }
 
 export function setPurpose(value) {
-  return { type: SET_PURPOSE, value };
+  return function(dispatch, getState) {
+    dispatch({ type: SET_PURPOSE, value });
+    if (!getState().startedAt) {
+      dispatch(startTimer());
+    }
+  };
 }
 
 export function setupTimer(timerValues) {
   return function(dispatch, getState) {
     if (
-      getState().timer.firstPlay &&
-      Date.now() - getState().timer.firstPlay > getState().settings.minTime
+      getState().timer.startedAt &&
+      Date.now() - getState().timer.startedAt > getState().settings.minTime
     ) {
-      console.log({ ...getState().timer, complete: Date.now() });
-      addToCalendar({ ...getState().timer, complete: Date.now() });
+      dispatch(timerComplete(false));
     }
 
     dispatch({ type: SETUP_TIMER, timerValues });
@@ -61,7 +73,7 @@ export function startBreak() {
   return function(dispatch, getState) {
     dispatch(
       setupTimer({
-        playing: true,
+        startedAt: Date.now(),
         timeRemaining:
           getState().settings.breakLengthInMinutes * MILLISECONDS_IN_A_MINUTE,
         purpose: "Break"
@@ -74,7 +86,7 @@ export function startPom() {
   return function(dispatch, getState) {
     dispatch(
       setupTimer({
-        playing: false,
+        startedAt: null,
         timeRemaining:
           getState().settings.pomLengthInMinutes * MILLISECONDS_IN_A_MINUTE
       })
@@ -82,12 +94,11 @@ export function startPom() {
   };
 }
 
-export function startTimer() {
+export function startAction() {
   return function(dispatch) {
     dispatch(
       setupTimer({
-        playing: true,
-        firstPlay: Date.now(),
+        startedAt: Date.now(),
         timeRemaining: 0,
         direction: 1
       })
@@ -117,6 +128,13 @@ export function setGoogleApiKey(value) {
 
 export function setGoogleClientId(value) {
   return { type: SET_GOOGLE_CLIENT_ID, value };
+}
+
+export function setGoogleEnabled(value) {
+  return { type: SET_GOOGLE_ENABLED, value };
+}
+export function setGoogleSignedIn(value) {
+  return { type: SET_GOOGLE_SIGNED_IN, value };
 }
 
 export function enqueueSnackbar(notification) {

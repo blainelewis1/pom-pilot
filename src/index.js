@@ -30,7 +30,6 @@ REACT_APP_GOOGLE_SECRET=
 /** FUNCTIONAL */
 
 // TODO: integrate with spotify
-// TODO: should pausing even be a thing...
 // TODO: keyboard shortcuts
 // TODO: Configuration for which calendar.
 
@@ -40,7 +39,6 @@ REACT_APP_GOOGLE_SECRET=
 // TODO: should backtrack go all the way to the last google calendar event or should it go to the last timer? What if there wasn't one?
 
 // TODO: use a service worker for push notifications.
-
 // TODO: add instructions for the BTYOAPIKEY etc.
 
 /** MORE DATA */
@@ -52,13 +50,14 @@ REACT_APP_GOOGLE_SECRET=
 
 /** BUGS */
 
-// BUG: the iconbutton click areas aren't quite right
 // BUG: persisted state doesn't use correct time elapsed.
-// BUG: if a pom completes and you start something else it duplicates it with different times.... Maybe just check if the last one completed and if it did assume it was stored.
-// Resolution: just set the "complete attribute instead", and if it's complete make it imnpossible to complete again
+// BUG: counts down too quickly in first second
+// BUG: can't construct notification on mobile. This needs a better wrapper
+// BUG: once I fix persisted state not using correct time elapsed then I need to limit when we give notifications...
 
 // TODO: deploy to github
 
+// TODO: first time setup stuff (instructions etc.).
 const theme = createMuiTheme({
   typography: {
     useNextVariants: true

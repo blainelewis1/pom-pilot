@@ -1,56 +1,37 @@
 import React from "react";
-import { Link } from "react-router-dom";
-import gapi, { isSignedIn } from "./google";
+import gapi from "./google";
 import {
   Button,
-  Modal,
-  Paper,
-  IconButton,
   InputAdornment,
   FormControlLabel,
   FormHelperText,
   FormControl,
-  Select,
   MenuItem,
   TextField,
   Typography as TypographyImp,
-  Grid,
-  Switch,
-  InputLabel
+  Grid as GridImp,
+  Switch
 } from "@material-ui/core";
 import styled from "styled-components";
-import CloseIcon from "@material-ui/icons/Close";
 import {
   setBreakLength,
   setPomLength,
   setNotifications,
   setTimerSound,
   setGoogleApiKey,
-  setGoogleClientId
+  setGoogleClientId,
+  setGoogleEnabled
 } from "./actions";
 import { connect } from "react-redux";
 import { TIMER_SOUNDS } from "./constants";
-
-const CenteredPaper = styled(Paper)`
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-
-  max-width: 600px;
-  width: 100%;
-  padding: 30px;
-`;
+import { ClosableModal } from "./Layout";
 
 const Typography = styled(TypographyImp)`
   margin-top: 20px;
 `;
 
-const CloseContainer = styled.div`
-  position: absolute;
-  top: 0;
-  right: 0;
-  display: inline-block;
+const Grid = styled(GridImp)`
+  margin-bottom: 15px !important;
 `;
 
 function handleAuthClick(event) {
@@ -71,6 +52,9 @@ export const Settings = ({
   notifications,
   googleApiKey,
   googleClientId,
+  googleEnabled,
+  googleSignedIn,
+  onSetGoogleEnabled,
   onSetPomLength,
   onSetBreakLength,
   onSetNotifications,
@@ -78,23 +62,40 @@ export const Settings = ({
   onSetGoogleApiKey,
   onSetGoogleClientId
 }) => {
-  const signedIn = isSignedIn();
   return (
-    <div>
-      <Modal open onClose={() => history.push("/")}>
-        <CenteredPaper>
-          <CloseContainer>
-            <IconButton aria-label="Settings">
-              <Link to="/">
-                <CloseIcon color="action" />
-              </Link>
-            </IconButton>
-          </CloseContainer>
-          <Grid container spacing={8}>
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Google Calendar
-                {signedIn ? (
+    <ClosableModal open onClose={() => history.push("/")}>
+      <Grid container spacing={8}>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Google Calendar
+            <Switch
+              variant="outlined"
+              checked={googleEnabled}
+              onChange={e => onSetGoogleEnabled(e.target.checked)}
+            />
+          </Typography>
+          {googleEnabled && (
+            <>
+              <Grid item>
+                <TextField
+                  variant="outlined"
+                  value={googleApiKey}
+                  onChange={e => onSetGoogleApiKey(e.target.value)}
+                  label={"API Key"}
+                  fullWidth
+                />
+              </Grid>
+              <Grid item>
+                <TextField
+                  variant="outlined"
+                  value={googleClientId}
+                  onChange={e => onSetGoogleClientId(e.target.value)}
+                  label={"Client ID"}
+                  fullWidth
+                />
+              </Grid>
+              <Grid>
+                {googleSignedIn ? (
                   <Button color="secondary" onClick={handleSignoutClick}>
                     Sign out
                   </Button>
@@ -103,113 +104,93 @@ export const Settings = ({
                     Authorise
                   </Button>
                 )}
-              </Typography>
-              <Grid item>
-                <TextField
-                  value={googleApiKey}
-                  onChange={e => onSetGoogleApiKey(e.target.value)}
-                  label={"API Key"}
-                  fullWidth
-                />
               </Grid>
-              <Grid item>
-                <br />
-                <TextField
-                  value={googleClientId}
-                  onChange={e => onSetGoogleClientId(e.target.value)}
-                  label={"Client ID"}
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant="h6" gutterBottom>
-                Timer
-              </Typography>
+            </>
+          )}
+        </Grid>
+        <Grid item xs={12}>
+          <Typography variant="h6" gutterBottom>
+            Timer
+          </Typography>
 
-              <Grid item>
-                <TextField
-                  label="Break Length"
-                  onChange={e => {
-                    onSetBreakLength(e.target.value);
-                  }}
-                  value={breakLengthInMinutes}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">minutes</InputAdornment>
-                    )
-                  }}
-                  type="number"
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <TextField
-                  label="Pom Length"
-                  onChange={e => {
-                    onSetPomLength(e.target.value);
-                  }}
-                  value={pomLengthInMinutes}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">minutes</InputAdornment>
-                    )
-                  }}
-                  type="number"
-                  fullWidth
-                />
-              </Grid>
-              <Grid item>
-                <FormControl fullWidth>
-                  <InputLabel shrink htmlFor="age-label-placeholder">
-                    Timer Sound
-                  </InputLabel>
-                  <Select
-                    value={timerSound}
-                    onChange={e => {
-                      onSetTimerSound(e.target.value);
-                      new Audio(e.target.value).play();
-                    }}
-                    displayEmpty
-                    name="Timer Sound"
-                    fullWidth
-                  >
-                    <MenuItem value="" />
-                    {TIMER_SOUNDS.map(soundUrl => (
-                      <MenuItem key={soundUrl} value={soundUrl}>
-                        {soundUrl}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item>
-                <FormControl
-                  error={window.Notification.permission === "denied"}
-                >
-                  <FormControlLabel
-                    control={
-                      <Switch
-                        checked={notifications}
-                        onChange={e => onSetNotifications(e.target.checked)}
-                      />
-                    }
-                    label="Notifications"
-                  />
-                  {window.Notification.permission === "denied" &&
-                    notifications && (
-                      <FormHelperText>
-                        Notifications are currently denied, you will have to
-                        reset them in the settings.
-                      </FormHelperText>
-                    )}
-                </FormControl>
-              </Grid>
-            </Grid>
+          <Grid item md={6} xs={12}>
+            <TextField
+              label="Break Length"
+              variant="outlined"
+              onChange={e => {
+                onSetBreakLength(e.target.value);
+              }}
+              value={breakLengthInMinutes}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">minutes</InputAdornment>
+                )
+              }}
+              type="number"
+              fullWidth
+            />
           </Grid>
-        </CenteredPaper>
-      </Modal>
-    </div>
+          <Grid item md={6} xs={12}>
+            <TextField
+              label="Pom Length"
+              variant="outlined"
+              onChange={e => {
+                onSetPomLength(e.target.value);
+              }}
+              value={pomLengthInMinutes}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">minutes</InputAdornment>
+                )
+              }}
+              type="number"
+              fullWidth
+            />
+          </Grid>
+          <Grid item>
+            <TextField
+              select
+              label="Select"
+              value={timerSound}
+              onChange={e => {
+                onSetTimerSound(e.target.value);
+                new Audio(e.target.value).play();
+              }}
+              margin="normal"
+              variant="outlined"
+              fullWidth
+            >
+              <MenuItem value="" />
+              {TIMER_SOUNDS.map(soundUrl => (
+                <MenuItem key={soundUrl} value={soundUrl}>
+                  {soundUrl}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item>
+            <FormControl error={window.Notification.permission === "denied"}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    variant="outlined"
+                    checked={notifications}
+                    onChange={e => onSetNotifications(e.target.checked)}
+                  />
+                }
+                label="Notifications"
+              />
+              {window.Notification.permission === "denied" && notifications && (
+                <FormHelperText>
+                  Notifications are currently denied, you will have to reset
+                  them in the settings.
+                </FormHelperText>
+              )}
+            </FormControl>
+          </Grid>
+        </Grid>
+      </Grid>
+    </ClosableModal>
   );
 };
 
@@ -221,6 +202,7 @@ export default connect(
     onSetNotifications: setNotifications,
     onSetTimerSound: setTimerSound,
     onSetGoogleApiKey: setGoogleApiKey,
-    onSetGoogleClientId: setGoogleClientId
+    onSetGoogleClientId: setGoogleClientId,
+    onSetGoogleEnabled: setGoogleEnabled
   }
 )(Settings);

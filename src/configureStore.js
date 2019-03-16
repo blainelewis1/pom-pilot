@@ -15,7 +15,6 @@ export const configureStore = initialState => {
   );
 
   store.subscribe(() => {
-    console.log(store.getState());
     localStorage.setItem("reduxState", JSON.stringify(store.getState()));
   });
 

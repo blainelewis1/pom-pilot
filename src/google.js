@@ -1,5 +1,5 @@
 import store from "./configureStore";
-import { enqueueSnackbar } from "./actions";
+import { enqueueSnackbar, setGoogleSignedIn, ADD_TO_CALENDAR } from "./actions";
 import { IconButton, Button } from "@material-ui/core";
 import React from "react";
 import CloseIcon from "@material-ui/icons/Close";
@@ -19,7 +19,7 @@ var SCOPES = "https://www.googleapis.com/auth/calendar";
  *  On load, called to load the auth2 library and API client library.
  */
 function handleClientLoad() {
-  window.gapi.load("client:auth2", initClient);
+  gapi.load("client:auth2", initClient);
 }
 
 function getApiLogin() {
@@ -40,7 +40,7 @@ function getApiLogin() {
  *  listeners.
  */
 function initClient() {
-  window.gapi.client
+  gapi.client
     .init({
       ...getApiLogin(),
       discoveryDocs: DISCOVERY_DOCS,
@@ -48,7 +48,7 @@ function initClient() {
     })
     .then(function() {
       // Listen for sign-in state changes.
-      window.gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+      gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
 
       // Handle the initial sign-in state.
       updateSigninStatus(isSignedIn());
@@ -90,34 +90,75 @@ function updateSigninStatus(isSignedIn, error) {
       })
     );
   }
+
+  store.dispatch(setGoogleSignedIn(isSignedIn));
 }
 
 export function signIn() {
-  window.gapi.auth2.getAuthInstance().signIn();
+  gapi.auth2.getAuthInstance().signIn();
 }
 
 function formatDate(d) {
   d.setMilliseconds(0);
   return d.toJSON();
 }
-export function addToCalendar({ purpose, firstPlay, complete }) {
-  if (!purpose) {
-    return;
-  }
-  var request = window.gapi.client.calendar.events.insert({
-    calendarId: "primary",
-    resource: {
-      summary: purpose,
-      start: {
-        dateTime: formatDate(new Date(firstPlay))
-      },
-      end: {
-        dateTime: formatDate(new Date(complete))
+export function addToCalendar({ purpose, startedAt, completedAt }) {
+  return function(dispatch, getState) {
+    if (!getState().timer.addedToCalendar) {
+      if (!getState().settings.googleEnabled) {
+        return;
+      }
+
+      try {
+        var request = gapi.client.calendar.events.insert({
+          calendarId: "primary",
+          resource: {
+            summary: purpose,
+            start: {
+              dateTime: formatDate(new Date(startedAt))
+            },
+            end: {
+              dateTime: formatDate(new Date(completedAt))
+            }
+          }
+        });
+
+        request
+          .getPromise()
+          .then(() => {
+            dispatch({ type: ADD_TO_CALENDAR });
+            dispatch(
+              enqueueSnackbar({
+                message: "Successfully added to Google Calendar!",
+                options: {
+                  variant: "success"
+                }
+              })
+            );
+          })
+          .catch(() => {
+            store.dispatch(
+              enqueueSnackbar({
+                message: "Something went wrong adding to Google Calendar.",
+                options: {
+                  variant: "error"
+                }
+              })
+            );
+          });
+      } catch {
+        //TODO: add a retry button?
+        store.dispatch(
+          enqueueSnackbar({
+            message: "Something went wrong adding to Google Calendar.",
+            options: {
+              variant: "error"
+            }
+          })
+        );
       }
     }
-  });
-
-  request.execute(console.log);
+  };
 }
 
 export function isSignedIn() {
