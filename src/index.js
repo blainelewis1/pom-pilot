@@ -13,30 +13,25 @@ import store from "./configureStore";
 import { HashRouter as Router } from "react-router-dom";
 import CloseIcon from "@material-ui/icons/Close";
 import { SnackbarProvider } from "notistack";
+import timerManager from "./timerManager";
 
-/*
-REACT_APP_GOOGLE_API_KEY=
-REACT_APP_GOOGLE_CLIENT_ID=
-REACT_APP_GOOGLE_SECRET=
+import grey from "@material-ui/core/colors/grey";
+import lightBlue from "@material-ui/core/colors/lightBlue";
 
-*/
 /** VISUAL */
 
 // TODO: make a logo
-// TODO: I don't love the blue when clicking the initial text field
-// TODO: Organise the settings screen properly
-// TODO: Background image?
 
 /** FUNCTIONAL */
+
+// TODO: what if a pom has mutliple objectives?
 
 // TODO: integrate with spotify
 // TODO: keyboard shortcuts
 // TODO: Configuration for which calendar.
+// TODO: colour the different types in gcal
 
-// TODO: "off track" button that logs to google calendar since the last time completed until now that you were off track. Or maybe even just "Back track" where you can label what you did during the last untracked time.
-
-// TODO: maybe timer just automatically picks up the time since the last event?
-// TODO: should backtrack go all the way to the last google calendar event or should it go to the last timer? What if there wasn't one?
+// TODO: "off track" button that logs to google calendar since the last time completed until now that you were off track. Or maybe even just "Back track" where you can label what you did during the last untracked time. maybe timer just automatically picks up the time since the last event? should backtrack go all the way to the last google calendar event or should it go to the last timer? What if there wasn't one?
 
 // TODO: use a service worker for push notifications.
 // TODO: add instructions for the BTYOAPIKEY etc.
@@ -50,19 +45,25 @@ REACT_APP_GOOGLE_SECRET=
 
 /** BUGS */
 
-// BUG: persisted state doesn't use correct time elapsed.
 // BUG: counts down too quickly in first second
 // BUG: can't construct notification on mobile. This needs a better wrapper
 // BUG: once I fix persisted state not using correct time elapsed then I need to limit when we give notifications...
+// BUG: if you reload and an event was finished during closed time it errors because the auth isn't ready yet. I need to queue the request. Maybe check if the auth is enroute and add another then to it or something.
 
 // TODO: deploy to github
-
 // TODO: first time setup stuff (instructions etc.).
+
 const theme = createMuiTheme({
   typography: {
     useNextVariants: true
+  },
+  palette: {
+    primary: grey,
+    secondary: lightBlue
   }
 });
+
+timerManager();
 
 ReactDOM.render(
   <MuiThemeProvider theme={theme}>

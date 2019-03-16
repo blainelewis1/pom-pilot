@@ -10,8 +10,12 @@ import {
   TextField,
   Typography as TypographyImp,
   Grid as GridImp,
-  Switch
+  Switch,
+  IconButton,
+  Tooltip
 } from "@material-ui/core";
+import HelpIcon from "@material-ui/icons/Help";
+
 import styled from "styled-components";
 import {
   setBreakLength,
@@ -25,6 +29,7 @@ import {
 import { connect } from "react-redux";
 import { TIMER_SOUNDS } from "./constants";
 import { ClosableModal } from "./Layout";
+import { green } from "@material-ui/core/colors";
 
 const Typography = styled(TypographyImp)`
   margin-top: 20px;
@@ -76,16 +81,25 @@ export const Settings = ({
           </Typography>
           {googleEnabled && (
             <>
-              <Grid item>
-                <TextField
-                  variant="outlined"
-                  value={googleApiKey}
-                  onChange={e => onSetGoogleApiKey(e.target.value)}
-                  label={"API Key"}
-                  fullWidth
-                />
+              <Grid container spacing={8}>
+                <Grid item xs={11}>
+                  <TextField
+                    variant="outlined"
+                    value={googleApiKey}
+                    onChange={e => onSetGoogleApiKey(e.target.value)}
+                    label={"API Key"}
+                    fullWidth
+                  />
+                </Grid>
+                <Grid item xs={1}>
+                  <Tooltip title="In order to use the google calendar integration you must generate your own API key.">
+                    <IconButton>
+                      <HelpIcon />
+                    </IconButton>
+                  </Tooltip>
+                </Grid>
               </Grid>
-              <Grid item>
+              <Grid item xs={12}>
                 <TextField
                   variant="outlined"
                   value={googleClientId}
@@ -94,7 +108,7 @@ export const Settings = ({
                   fullWidth
                 />
               </Grid>
-              <Grid>
+              <Grid item xs={12}>
                 {googleSignedIn ? (
                   <Button color="secondary" onClick={handleSignoutClick}>
                     Sign out
@@ -104,6 +118,13 @@ export const Settings = ({
                     Authorise
                   </Button>
                 )}
+                <Button
+                  color="secondary"
+                  target="_blank"
+                  href="https://console.developers.google.com/start/api?id=calendar"
+                >
+                  Generate API Key
+                </Button>
               </Grid>
             </>
           )}

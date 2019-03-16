@@ -26,14 +26,16 @@ function getApiLogin() {
   // TODO: if there is no api login then create a snackbar with a link to the settings page.
 
   return {
-    apiKey:
-      process.env.REACT_APP_GOOGLE_API_KEY ||
-      store.getState().settings.googleApiKey,
+    // apiKey:
+    //   process.env.REACT_APP_GOOGLE_API_KEY ||
+    //   store.getState().settings.googleApiKey,
     clientId:
       process.env.REACT_APP_GOOGLE_CLIENT_ID ||
       store.getState().settings.googleClientId
   };
 }
+
+console.log(getApiLogin());
 
 /**
  *  Initializes the API client library and sets up sign-in state
@@ -108,6 +110,8 @@ export function addToCalendar({ purpose, startedAt, completedAt }) {
       if (!getState().settings.googleEnabled) {
         return;
       }
+      // BUG: this won't let retries work.
+      dispatch({ type: ADD_TO_CALENDAR });
 
       try {
         var request = gapi.client.calendar.events.insert({
@@ -126,7 +130,6 @@ export function addToCalendar({ purpose, startedAt, completedAt }) {
         request
           .getPromise()
           .then(() => {
-            dispatch({ type: ADD_TO_CALENDAR });
             dispatch(
               enqueueSnackbar({
                 message: "Successfully added to Google Calendar!",

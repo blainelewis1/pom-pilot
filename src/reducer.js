@@ -1,7 +1,6 @@
 import { combineReducers } from "redux";
 import {
   START_TIMER,
-  TIME_ELAPSED,
   SET_PURPOSE,
   SET_POM_LENGTH,
   SET_BREAK_LENGTH,
@@ -14,44 +13,48 @@ import {
   SET_GOOGLE_API_KEY,
   SET_GOOGLE_CLIENT_ID,
   SET_GOOGLE_ENABLED,
-  SET_GOOGLE_SIGNED_IN
+  SET_GOOGLE_SIGNED_IN,
+  NOTIFY,
+  ADD_TO_CALENDAR
 } from "./actions";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 
 let defaultTimer = {
-  // The amount of time remaining in milliseconds. If direction is positive this is the time elapsed
-  timeRemaining: 25 * MILLISECONDS_IN_A_MINUTE,
+  length: 25 * MILLISECONDS_IN_A_MINUTE,
   purpose: "",
-  // the timestamp when the timer was first started
   startedAt: null,
   completedAt: null,
-  direction: -1,
-  notified: false
+  completed: false,
+  notified: false,
+  addedToCalendar: false
 };
 
 function timer(state = defaultTimer, action) {
   switch (action.type) {
     case START_TIMER:
-      return {
-        ...state,
-        startedAt: Date.now()
-      };
-    case TIME_ELAPSED:
-      let timeRemaining = state.timeRemaining + state.direction * action.amount;
+      let completedAt = undefined;
 
-      if (timeRemaining < 0) {
-        timeRemaining = 0;
+      if (state.length) {
+        completedAt = Date.now() + state.length;
       }
 
-      return { ...state, timeRemaining };
+      return {
+        ...state,
+        startedAt: Date.now(),
+        completedAt
+      };
     case SET_PURPOSE:
       return { ...state, purpose: action.value };
+
     case SETUP_TIMER:
       let newTimerState = { ...defaultTimer };
-
       return { ...newTimerState, ...action.timerValues };
+    case NOTIFY:
+      return { ...state, notified: true };
+    case ADD_TO_CALENDAR:
+      return { ...state, addedToCalendar: true };
     case TIMER_COMPLETE:
-      return { ...state, completedAt: Date.now() };
+      return { ...state, completed: true };
     default:
       return state;
   }

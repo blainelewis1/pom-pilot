@@ -13,9 +13,6 @@ export default function notify() {
       timer: { notified }
     } = getState();
 
-    debugger;
-    console.log(getState());
-
     if (!notified) {
       let audio;
       if (notifications && window.Notification) {

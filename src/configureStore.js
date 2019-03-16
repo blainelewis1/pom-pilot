@@ -11,7 +11,8 @@ export const configureStore = initialState => {
   let store = createStore(
     reducer,
     { ...persistedState, initialState },
-    applyMiddleware(logger, thunk)
+    // applyMiddleware(logger, thunk)
+    applyMiddleware(thunk)
   );
 
   store.subscribe(() => {

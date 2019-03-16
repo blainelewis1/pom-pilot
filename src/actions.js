@@ -3,7 +3,6 @@ import notify from "./notify";
 import { addToCalendar } from "./google";
 
 export const START_TIMER = "START_TIMER";
-export const TIME_ELAPSED = "TIME_ELAPSED";
 export const SET_PURPOSE = "SET_PURPOSE";
 export const SETUP_TIMER = "SETUP_TIMER";
 export const TIMER_COMPLETE = "TIMER_COMPLETE";
@@ -26,22 +25,11 @@ export function startTimer() {
   return { type: START_TIMER };
 }
 
-export function reduceTime(amount) {
+export function timerComplete() {
   return function(dispatch, getState) {
-    dispatch({ type: TIME_ELAPSED, amount });
-    if (getState().timer.timeRemaining <= 0) {
-      dispatch(timerComplete());
-    }
-  };
-}
-
-function timerComplete(notifyEnabled = true) {
-  return function(dispatch, getState) {
-    if (!getState().timer.completedAt) {
+    if (!getState().timer.completed) {
       dispatch({ type: TIMER_COMPLETE });
-      if (notifyEnabled) {
-        dispatch(notify());
-      }
+      dispatch(notify());
       dispatch(addToCalendar(getState().timer));
     }
   };
@@ -50,7 +38,7 @@ function timerComplete(notifyEnabled = true) {
 export function setPurpose(value) {
   return function(dispatch, getState) {
     dispatch({ type: SET_PURPOSE, value });
-    if (!getState().startedAt) {
+    if (!getState().timer.startedAt) {
       dispatch(startTimer());
     }
   };
@@ -62,7 +50,8 @@ export function setupTimer(timerValues) {
       getState().timer.startedAt &&
       Date.now() - getState().timer.startedAt > getState().settings.minTime
     ) {
-      dispatch(timerComplete(false));
+      // dispatch({ type: TIMER_COMPLETE });
+      // dispatch(addToCalendar(getState().timer));
     }
 
     dispatch({ type: SETUP_TIMER, timerValues });
@@ -74,11 +63,12 @@ export function startBreak() {
     dispatch(
       setupTimer({
         startedAt: Date.now(),
-        timeRemaining:
+        length:
           getState().settings.breakLengthInMinutes * MILLISECONDS_IN_A_MINUTE,
         purpose: "Break"
       })
     );
+    dispatch(startTimer());
   };
 }
 
@@ -87,7 +77,7 @@ export function startPom() {
     dispatch(
       setupTimer({
         startedAt: null,
-        timeRemaining:
+        length:
           getState().settings.pomLengthInMinutes * MILLISECONDS_IN_A_MINUTE
       })
     );
@@ -99,8 +89,7 @@ export function startAction() {
     dispatch(
       setupTimer({
         startedAt: Date.now(),
-        timeRemaining: 0,
-        direction: 1
+        length: 0
       })
     );
   };

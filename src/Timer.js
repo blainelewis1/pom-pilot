@@ -3,7 +3,7 @@ import { Typography, TextField } from "@material-ui/core";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 import { connect } from "react-redux";
 import { useInterval } from "./utils";
-import { setPurpose, reduceTime } from "./actions";
+import { setPurpose } from "./actions";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -38,18 +38,31 @@ const PurposeTextField = styled(TextField)`
   }
 `;
 
+//create your forceUpdate hook
+function useForceUpdate() {
+  const [value, set] = useState(true); //boolean state
+  return () => set(!value); // toggle the state to force render
+}
+
 // TODO: maybe the timer bit should actually exist outside of the component?
 export const Timer = ({
   purpose,
   startedAt,
   completedAt,
-  onReduceTime,
-  onSetPurpose,
-  timeRemaining
+  length,
+  onSetPurpose
 }) => {
   let interval = 100;
 
-  useInterval(onReduceTime, !completedAt && startedAt ? interval : null);
+  let timerStarted = startedAt && completedAt;
+  let timerComplete = Date.now() >= completedAt;
+  let actionStarted = startedAt && !length;
+  let forceUpdate = useForceUpdate();
+
+  useInterval(
+    () => forceUpdate(),
+    (timerStarted && !timerComplete) || actionStarted ? interval : null
+  );
 
   // useShortcut(({ key }) => key === "Enter", onInvertPlayState);
 
@@ -57,8 +70,20 @@ export const Timer = ({
   // This is a neat way to reset the internal purpose state whenever the external one changes.
   useEffect(() => setPurpose(purpose), [purpose]);
 
-  let minutes = Math.floor(timeRemaining / MILLISECONDS_IN_A_MINUTE);
-  let seconds = Math.floor((timeRemaining % MILLISECONDS_IN_A_MINUTE) / 1000);
+  let displayTime;
+
+  if (timerStarted) {
+    displayTime = completedAt - Date.now();
+  } else if (actionStarted) {
+    displayTime = Date.now() - startedAt;
+  } else {
+    displayTime = length;
+  }
+
+  displayTime = Math.max(0, displayTime);
+
+  let minutes = Math.floor(displayTime / MILLISECONDS_IN_A_MINUTE);
+  let seconds = Math.floor((displayTime % MILLISECONDS_IN_A_MINUTE) / 1000);
   let timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
   document.title = `(${timeString}) ${purpose} | Pomodoro App`;
@@ -99,7 +124,6 @@ export const Timer = ({
 export default connect(
   ({ timer }) => timer,
   {
-    onSetPurpose: setPurpose,
-    onReduceTime: reduceTime
+    onSetPurpose: setPurpose
   }
 )(Timer);
