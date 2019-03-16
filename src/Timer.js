@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Typography, TextField } from "@material-ui/core";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 import { connect } from "react-redux";
@@ -38,6 +38,8 @@ const PurposeTextField = styled(TextField)`
   }
 `;
 
+// BUG: purpose should be stored locally maybe...
+
 // BUG: if you click pause at 500ms until 0 it will say 0 but not actually be 0
 export const Timer = ({
   purpose,
@@ -53,6 +55,10 @@ export const Timer = ({
   useInterval(onReduceTime, playing ? interval : null);
   useShortcut(({ key }) => key === "Enter", onInvertPlayState);
 
+  let [p, setPurpose] = useState(purpose);
+  // This is a neat way to reset the internal purpose state whenever the external one changes.
+  useEffect(() => setPurpose(purpose), [purpose]);
+
   let minutes = Math.floor(timeRemaining / MILLISECONDS_IN_A_MINUTE);
   let seconds = Math.floor((timeRemaining % MILLISECONDS_IN_A_MINUTE) / 1000);
   let timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
@@ -65,7 +71,7 @@ export const Timer = ({
         {timeString}
       </Typography>
       <Purpose>
-        {!firstPlay ? (
+        {!purpose ? (
           <PurposeTextField
             autoFocus
             fullWidth
@@ -76,14 +82,16 @@ export const Timer = ({
             // rows={2}
             placeholder="What are you doing?"
             onChange={e => {
-              onSetPurpose(e.target.value);
+              setPurpose(e.target.value);
             }}
             onKeyPress={e => {
               if (e.key === "Enter") {
                 e.preventDefault();
+                onSetPurpose(p);
+                onInvertPlayState();
               }
             }}
-            value={purpose}
+            value={p}
           />
         ) : (
           <Typography variant="h2">{purpose}</Typography>

@@ -4,7 +4,22 @@ import logger from "redux-logger";
 import thunk from "redux-thunk";
 
 export const configureStore = initialState => {
-  return createStore(reducer, applyMiddleware(logger, thunk));
+  const persistedState = localStorage.getItem("reduxState")
+    ? JSON.parse(localStorage.getItem("reduxState"))
+    : {};
+
+  let store = createStore(
+    reducer,
+    { ...persistedState, initialState },
+    applyMiddleware(logger, thunk)
+  );
+
+  store.subscribe(() => {
+    console.log(store.getState());
+    localStorage.setItem("reduxState", JSON.stringify(store.getState()));
+  });
+
+  return store;
 };
 
 export default configureStore();

@@ -22,6 +22,19 @@ function handleClientLoad() {
   window.gapi.load("client:auth2", initClient);
 }
 
+function getApiLogin() {
+  // TODO: if there is no api login then create a snackbar with a link to the settings page.
+
+  return {
+    apiKey:
+      process.env.REACT_APP_GOOGLE_API_KEY ||
+      store.getState().settings.googleApiKey,
+    clientId:
+      process.env.REACT_APP_GOOGLE_CLIENT_ID ||
+      store.getState().settings.googleClientId
+  };
+}
+
 /**
  *  Initializes the API client library and sets up sign-in state
  *  listeners.
@@ -29,8 +42,7 @@ function handleClientLoad() {
 function initClient() {
   window.gapi.client
     .init({
-      apiKey: process.env.REACT_APP_GOOGLE_API_KEY,
-      clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID,
+      ...getApiLogin(),
       discoveryDocs: DISCOVERY_DOCS,
       scope: SCOPES
     })
@@ -51,7 +63,6 @@ function initClient() {
  *  appropriately. After a sign-in, the API is called.
  */
 function updateSigninStatus(isSignedIn, error) {
-  console.log(isSignedIn, error);
   if (isSignedIn) {
     store.dispatch(
       enqueueSnackbar({
@@ -90,6 +101,9 @@ function formatDate(d) {
   return d.toJSON();
 }
 export function addToCalendar({ purpose, firstPlay, complete }) {
+  if (!purpose) {
+    return;
+  }
   var request = window.gapi.client.calendar.events.insert({
     calendarId: "primary",
     resource: {

@@ -1,5 +1,21 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Getting started with Google Calendar integration
+
+Ensure you can use https on localhost chrome://flags/#allow-insecure-localhost
+
+1. Get an API key: https://console.developers.google.com/start/api?id=calendar
+1. Follow instructions on this page (you'll need a client ID with https://localhost:3000 whitelisted) https://developers.google.com/calendar/quickstart/js
+
+1. Inside `.env.development.local`
+
+```
+REACT_APP_GOOGLE_API_KEY=
+REACT_APP_GOOGLE_CLIENT_ID=
+```
+
+1. `npm start` and get started, just click authorise and follow the steps, you might need to go into the settings to authorise.
+
 ## Available Scripts
 
 In the project directory, you can run:

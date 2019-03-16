@@ -10,7 +10,9 @@ import {
   SET_NOTIFICATIONS,
   SET_TIMER_SOUND,
   REMOVE_SNACKBAR,
-  ENQUEUE_SNACKBAR
+  ENQUEUE_SNACKBAR,
+  SET_GOOGLE_API_KEY,
+  SET_GOOGLE_CLIENT_ID
 } from "./actions";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 
@@ -76,11 +78,18 @@ function settings(
     pomLengthInMinutes: 25,
     breakLengthInMinutes: 5,
     notifications: true,
-    timerSound: "/alarm.mp3"
+    timerSound: "/alarm.mp3",
+    minTime: 1 * MILLISECONDS_IN_A_MINUTE,
+    googleApiKey: "",
+    googleClientId: ""
   },
   action
 ) {
   switch (action.type) {
+    case SET_GOOGLE_API_KEY:
+      return { ...state, googleApiKey: action.value };
+    case SET_GOOGLE_CLIENT_ID:
+      return { ...state, googleClientId: action.value };
     case SET_POM_LENGTH:
       return { ...state, pomLengthInMinutes: action.value };
     case SET_BREAK_LENGTH:

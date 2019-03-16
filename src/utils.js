@@ -34,7 +34,6 @@ export function useShortcut(matches, action) {
   useEffect(() => {
     function test(e) {
       if (savedMatches.current(e)) {
-        console.log(e.target);
         savedAction.current();
       }
     }

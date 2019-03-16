@@ -12,6 +12,8 @@ export const SET_POM_LENGTH = "SET_POM_LENGTH";
 export const SET_BREAK_LENGTH = "SET_BREAK_LENGTH";
 export const SET_NOTIFICATIONS = "SET_NOTIFICATION";
 export const SET_TIMER_SOUND = "SET_TIMER_SOUND";
+export const SET_GOOGLE_API_KEY = "SET_GOOGLE_API_KEY";
+export const SET_GOOGLE_CLIENT_ID = "SET_GOOGLE_CLIENT_ID";
 
 export const ENQUEUE_SNACKBAR = "ENQUEUE_SNACKBAR";
 export const REMOVE_SNACKBAR = "REMOVE_SNACKBAR";
@@ -38,15 +40,21 @@ function timerComplete() {
 }
 
 export function setPurpose(value) {
-  return function(dispatch, getState) {
-    //TODO: if the timer has been running for 5 minutes, add it to calendar
-    //TODO: maybe make the arbitrary 5 minutes configurable?
-    return dispatch({ type: SET_PURPOSE, value });
-  };
+  return { type: SET_PURPOSE, value };
 }
 
 export function setupTimer(timerValues) {
-  return { type: SETUP_TIMER, timerValues };
+  return function(dispatch, getState) {
+    if (
+      getState().timer.firstPlay &&
+      Date.now() - getState().timer.firstPlay > getState().settings.minTime
+    ) {
+      console.log({ ...getState().timer, complete: Date.now() });
+      addToCalendar({ ...getState().timer, complete: Date.now() });
+    }
+
+    dispatch({ type: SETUP_TIMER, timerValues });
+  };
 }
 
 export function startBreak() {
@@ -78,7 +86,8 @@ export function startTimer() {
   return function(dispatch) {
     dispatch(
       setupTimer({
-        playing: false,
+        playing: true,
+        firstPlay: Date.now(),
         timeRemaining: 0,
         direction: 1
       })
@@ -100,6 +109,14 @@ export function setBreakLength(value) {
 
 export function setTimerSound(value) {
   return { type: SET_TIMER_SOUND, value };
+}
+
+export function setGoogleApiKey(value) {
+  return { type: SET_GOOGLE_API_KEY, value };
+}
+
+export function setGoogleClientId(value) {
+  return { type: SET_GOOGLE_CLIENT_ID, value };
 }
 
 export function enqueueSnackbar(notification) {
