@@ -24,17 +24,16 @@ import lightBlue from "@material-ui/core/colors/lightBlue";
 
 /** FUNCTIONAL */
 
-// TODO: what if a pom has mutliple objectives?
-
-// TODO: integrate with spotify
-// TODO: keyboard shortcuts
 // TODO: Configuration for which calendar.
 // TODO: colour the different types in gcal
+
+// TODO: what if a pom has mutliple objectives?
+// TODO: integrate with spotify
+// TODO: keyboard shortcuts
 
 // TODO: "off track" button that logs to google calendar since the last time completed until now that you were off track. Or maybe even just "Back track" where you can label what you did during the last untracked time. maybe timer just automatically picks up the time since the last event? should backtrack go all the way to the last google calendar event or should it go to the last timer? What if there wasn't one?
 
 // TODO: use a service worker for push notifications.
-// TODO: add instructions for the BTYOAPIKEY etc.
 
 /** MORE DATA */
 
@@ -45,6 +44,7 @@ import lightBlue from "@material-ui/core/colors/lightBlue";
 
 /** BUGS */
 
+// BUG:  cancelling a POM might not result in something being pushed
 // BUG: counts down too quickly in first second
 // BUG: can't construct notification on mobile. This needs a better wrapper
 // BUG: once I fix persisted state not using correct time elapsed then I need to limit when we give notifications...

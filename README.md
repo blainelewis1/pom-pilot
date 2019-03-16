@@ -10,7 +10,6 @@ Ensure you can use https on localhost chrome://flags/#allow-insecure-localhost
 1. Inside `.env.development.local`
 
 ```
-REACT_APP_GOOGLE_API_KEY=
 REACT_APP_GOOGLE_CLIENT_ID=
 ```
 

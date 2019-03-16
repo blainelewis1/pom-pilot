@@ -10,7 +10,6 @@ import {
   SET_TIMER_SOUND,
   REMOVE_SNACKBAR,
   ENQUEUE_SNACKBAR,
-  SET_GOOGLE_API_KEY,
   SET_GOOGLE_CLIENT_ID,
   SET_GOOGLE_ENABLED,
   SET_GOOGLE_SIGNED_IN,
@@ -75,8 +74,6 @@ function settings(
   action
 ) {
   switch (action.type) {
-    case SET_GOOGLE_API_KEY:
-      return { ...state, googleApiKey: action.value };
     case SET_GOOGLE_CLIENT_ID:
       return { ...state, googleClientId: action.value };
     case SET_POM_LENGTH:

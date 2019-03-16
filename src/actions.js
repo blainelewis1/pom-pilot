@@ -13,7 +13,6 @@ export const SET_POM_LENGTH = "SET_POM_LENGTH";
 export const SET_BREAK_LENGTH = "SET_BREAK_LENGTH";
 export const SET_NOTIFICATIONS = "SET_NOTIFICATION";
 export const SET_TIMER_SOUND = "SET_TIMER_SOUND";
-export const SET_GOOGLE_API_KEY = "SET_GOOGLE_API_KEY";
 export const SET_GOOGLE_CLIENT_ID = "SET_GOOGLE_CLIENT_ID";
 export const SET_GOOGLE_ENABLED = "SET_GOOGLE_ENABLED";
 export const SET_GOOGLE_SIGNED_IN = "SET_GOOGLE_SIGNED_IN";
@@ -50,8 +49,8 @@ export function setupTimer(timerValues) {
       getState().timer.startedAt &&
       Date.now() - getState().timer.startedAt > getState().settings.minTime
     ) {
-      // dispatch({ type: TIMER_COMPLETE });
-      // dispatch(addToCalendar(getState().timer));
+      dispatch({ type: TIMER_COMPLETE });
+      dispatch(addToCalendar(getState().timer));
     }
 
     dispatch({ type: SETUP_TIMER, timerValues });
@@ -110,11 +109,6 @@ export function setBreakLength(value) {
 export function setTimerSound(value) {
   return { type: SET_TIMER_SOUND, value };
 }
-
-export function setGoogleApiKey(value) {
-  return { type: SET_GOOGLE_API_KEY, value };
-}
-
 export function setGoogleClientId(value) {
   return { type: SET_GOOGLE_CLIENT_ID, value };
 }

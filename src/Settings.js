@@ -22,14 +22,12 @@ import {
   setPomLength,
   setNotifications,
   setTimerSound,
-  setGoogleApiKey,
   setGoogleClientId,
   setGoogleEnabled
 } from "./actions";
 import { connect } from "react-redux";
 import { TIMER_SOUNDS } from "./constants";
 import { ClosableModal } from "./Layout";
-import { green } from "@material-ui/core/colors";
 
 const Typography = styled(TypographyImp)`
   margin-top: 20px;
@@ -55,7 +53,6 @@ export const Settings = ({
   pomLengthInMinutes,
   timerSound,
   notifications,
-  googleApiKey,
   googleClientId,
   googleEnabled,
   googleSignedIn,
@@ -64,7 +61,6 @@ export const Settings = ({
   onSetBreakLength,
   onSetNotifications,
   onSetTimerSound,
-  onSetGoogleApiKey,
   onSetGoogleClientId
 }) => {
   return (
@@ -85,29 +81,21 @@ export const Settings = ({
                 <Grid item xs={11}>
                   <TextField
                     variant="outlined"
-                    value={googleApiKey}
-                    onChange={e => onSetGoogleApiKey(e.target.value)}
-                    label={"API Key"}
+                    value={googleClientId}
+                    onChange={e => onSetGoogleClientId(e.target.value)}
+                    label={"Client ID"}
                     fullWidth
                   />
                 </Grid>
                 <Grid item xs={1}>
-                  <Tooltip title="In order to use the google calendar integration you must generate your own API key.">
+                  <Tooltip title="In order to use the google calendar integration you must generate your own client id. It should be restricted to just this URL. Setup should be for javascript in the browser, accessing user data.">
                     <IconButton>
                       <HelpIcon />
                     </IconButton>
                   </Tooltip>
                 </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  variant="outlined"
-                  value={googleClientId}
-                  onChange={e => onSetGoogleClientId(e.target.value)}
-                  label={"Client ID"}
-                  fullWidth
-                />
-              </Grid>
+
               <Grid item xs={12}>
                 {googleSignedIn ? (
                   <Button color="secondary" onClick={handleSignoutClick}>
@@ -123,7 +111,7 @@ export const Settings = ({
                   target="_blank"
                   href="https://console.developers.google.com/start/api?id=calendar"
                 >
-                  Generate API Key
+                  Generate client id
                 </Button>
               </Grid>
             </>
@@ -222,7 +210,6 @@ export default connect(
     onSetPomLength: setPomLength,
     onSetNotifications: setNotifications,
     onSetTimerSound: setTimerSound,
-    onSetGoogleApiKey: setGoogleApiKey,
     onSetGoogleClientId: setGoogleClientId,
     onSetGoogleEnabled: setGoogleEnabled
   }
