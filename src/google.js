@@ -1,10 +1,18 @@
 import store from "./configureStore";
 import { enqueueSnackbar, setGoogleSignedIn, ADD_TO_CALENDAR } from "./actions";
-import { IconButton, Button } from "@material-ui/core";
-import React from "react";
+import { IconButton, Button, TextField, MenuItem } from "@material-ui/core";
+import React, { useEffect, useState } from "react";
 import CloseIcon from "@material-ui/icons/Close";
+import styled from "styled-components";
 
 const gapi = window.gapi;
+
+const Splotch = styled.div`
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+  background-color: ${({ color }) => color};
+`;
 
 // Array of API discovery doc URLs for APIs used by the quickstart
 var DISCOVERY_DOCS = [
@@ -22,8 +30,77 @@ function handleClientLoad() {
   gapi.load("client:auth2", initClient);
 }
 
+export function getAllCalendars() {
+  return gapi.client.calendar.calendarList
+    .list()
+    .getPromise()
+    .then(data => Promise.resolve(data.result.items));
+}
+export function getAllColors() {
+  return gapi.client.calendar.colors
+    .get({ calendarId: store.getState().settings.googleCalendar })
+    .getPromise()
+    .then(data =>
+      Object.keys(data.result.event).map(id => ({
+        id,
+        color: data.result.event[id].background
+      }))
+    );
+}
+
+export const GoogleCalendarList = ({ ...props }) => {
+  let [calendars, setCalendars] = useState([]);
+
+  useEffect(() => {
+    getAllCalendars().then(calendars => setCalendars(calendars));
+  }, []);
+
+  return (
+    <TextField
+      select
+      label="Calendar"
+      margin="normal"
+      variant="outlined"
+      fullWidth
+      disabled={calendars.length === 0}
+      {...props}
+    >
+      {calendars.map(({ id, summary, primary }) => (
+        <MenuItem key={id} value={primary ? "primary" : id}>
+          {summary}
+        </MenuItem>
+      ))}
+    </TextField>
+  );
+};
+
+export const GoogleColorList = ({ ...props }) => {
+  let [colors, setColors] = useState([]);
+
+  useEffect(() => {
+    getAllColors().then(colors => setColors(colors));
+  }, []);
+
+  return (
+    <TextField
+      select
+      margin="normal"
+      variant="outlined"
+      fullWidth
+      disabled={colors.length === 0}
+      {...props}
+    >
+      {colors.map(({ id, color }) => (
+        <MenuItem key={id} value={id}>
+          <Splotch color={color}>&nbsp;</Splotch>
+        </MenuItem>
+      ))}
+    </TextField>
+  );
+};
+
 function getApiLogin() {
-  // TODO: if there is no api login then create a snackbar with a link to the settings page.
+  // TODO: if there is no api login then create a snackbar with a link to the settings page?
 
   return {
     // apiKey:
@@ -34,8 +111,6 @@ function getApiLogin() {
       store.getState().settings.googleClientId
   };
 }
-
-console.log(getApiLogin());
 
 /**
  *  Initializes the API client library and sets up sign-in state
@@ -104,10 +179,16 @@ function formatDate(d) {
   d.setMilliseconds(0);
   return d.toJSON();
 }
-export function addToCalendar({ purpose, startedAt, completedAt }) {
+
+export function addToCalendar() {
   return function(dispatch, getState) {
-    if (!getState().timer.addedToCalendar) {
-      if (!getState().settings.googleEnabled) {
+    let {
+      settings: { googleEnabled, googleCalendar, colors },
+      timer: { purpose, startedAt, completedAt, addedToCalendar, type }
+    } = getState();
+
+    if (!addedToCalendar) {
+      if (!googleEnabled) {
         return;
       }
       // BUG: this won't let retries work.
@@ -115,9 +196,10 @@ export function addToCalendar({ purpose, startedAt, completedAt }) {
 
       try {
         var request = gapi.client.calendar.events.insert({
-          calendarId: "primary",
+          calendarId: googleCalendar,
           resource: {
             summary: purpose,
+            colorId: colors[type],
             start: {
               dateTime: formatDate(new Date(startedAt))
             },
@@ -139,7 +221,8 @@ export function addToCalendar({ purpose, startedAt, completedAt }) {
               })
             );
           })
-          .catch(() => {
+          .catch(e => {
+            console.log(e);
             store.dispatch(
               enqueueSnackbar({
                 message: "Something went wrong adding to Google Calendar.",
@@ -149,7 +232,8 @@ export function addToCalendar({ purpose, startedAt, completedAt }) {
               })
             );
           });
-      } catch {
+      } catch (e) {
+        console.log(e);
         //TODO: add a retry button?
         store.dispatch(
           enqueueSnackbar({
@@ -171,15 +255,6 @@ export function isSignedIn() {
     return false;
   }
 }
-
-// window.gapi.client.calendar.events.list({
-//   calendarId: "primary",
-//   timeMin: new Date().toISOString(),
-//   showDeleted: false,
-//   singleEvents: true,
-//   maxResults: 10,
-//   orderBy: "startTime"
-// });
 
 handleClientLoad();
 

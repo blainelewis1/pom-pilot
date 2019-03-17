@@ -1,5 +1,5 @@
 import React from "react";
-import gapi from "./google";
+import gapi, { GoogleCalendarList, GoogleColorList } from "./google";
 import {
   Button,
   InputAdornment,
@@ -23,7 +23,9 @@ import {
   setNotifications,
   setTimerSound,
   setGoogleClientId,
-  setGoogleEnabled
+  setGoogleEnabled,
+  setGoogleCalendar,
+  setColor
 } from "./actions";
 import { connect } from "react-redux";
 import { TIMER_SOUNDS } from "./constants";
@@ -56,12 +58,16 @@ export const Settings = ({
   googleClientId,
   googleEnabled,
   googleSignedIn,
+  googleCalendar,
+  colors: { pom, breaking, action },
   onSetGoogleEnabled,
   onSetPomLength,
   onSetBreakLength,
   onSetNotifications,
   onSetTimerSound,
-  onSetGoogleClientId
+  onSetGoogleClientId,
+  onSetGoogleCalendar,
+  onSetColor
 }) => {
   return (
     <ClosableModal open onClose={() => history.push("/")}>
@@ -95,7 +101,39 @@ export const Settings = ({
                   </Tooltip>
                 </Grid>
               </Grid>
-
+              {googleSignedIn && (
+                <>
+                  <Grid item>
+                    <GoogleCalendarList
+                      value={googleCalendar}
+                      onChange={e => onSetGoogleCalendar(e.target.value)}
+                    />
+                  </Grid>
+                  <Grid container spacing={8}>
+                    <Grid item md={4} xs={12}>
+                      <GoogleColorList
+                        label={"Break Color"}
+                        value={breaking}
+                        onChange={e => onSetColor("breaking", e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item md={4} xs={12}>
+                      <GoogleColorList
+                        label={"Action Color"}
+                        value={action}
+                        onChange={e => onSetColor("action", e.target.value)}
+                      />
+                    </Grid>
+                    <Grid item md={4} xs={12}>
+                      <GoogleColorList
+                        label={"Pom Color"}
+                        value={pom}
+                        onChange={e => onSetColor("pom", e.target.value)}
+                      />
+                    </Grid>
+                  </Grid>
+                </>
+              )}
               <Grid item xs={12}>
                 {googleSignedIn ? (
                   <Button color="secondary" onClick={handleSignoutClick}>
@@ -211,6 +249,8 @@ export default connect(
     onSetNotifications: setNotifications,
     onSetTimerSound: setTimerSound,
     onSetGoogleClientId: setGoogleClientId,
-    onSetGoogleEnabled: setGoogleEnabled
+    onSetGoogleEnabled: setGoogleEnabled,
+    onSetGoogleCalendar: setGoogleCalendar,
+    onSetColor: setColor
   }
 )(Settings);

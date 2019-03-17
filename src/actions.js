@@ -16,7 +16,8 @@ export const SET_TIMER_SOUND = "SET_TIMER_SOUND";
 export const SET_GOOGLE_CLIENT_ID = "SET_GOOGLE_CLIENT_ID";
 export const SET_GOOGLE_ENABLED = "SET_GOOGLE_ENABLED";
 export const SET_GOOGLE_SIGNED_IN = "SET_GOOGLE_SIGNED_IN";
-
+export const SET_GOOGLE_CALENDAR = "SET_GOOGLE_CALENDAR";
+export const SET_COLOR = "SET_COLOR";
 export const ENQUEUE_SNACKBAR = "ENQUEUE_SNACKBAR";
 export const REMOVE_SNACKBAR = "REMOVE_SNACKBAR";
 
@@ -29,7 +30,7 @@ export function timerComplete() {
     if (!getState().timer.completed) {
       dispatch({ type: TIMER_COMPLETE });
       dispatch(notify());
-      dispatch(addToCalendar(getState().timer));
+      dispatch(addToCalendar());
     }
   };
 }
@@ -50,7 +51,7 @@ export function setupTimer(timerValues) {
       Date.now() - getState().timer.startedAt > getState().settings.minTime
     ) {
       dispatch({ type: TIMER_COMPLETE });
-      dispatch(addToCalendar(getState().timer));
+      dispatch(addToCalendar());
     }
 
     dispatch({ type: SETUP_TIMER, timerValues });
@@ -62,6 +63,7 @@ export function startBreak() {
     dispatch(
       setupTimer({
         startedAt: Date.now(),
+        type: "breaking",
         length:
           getState().settings.breakLengthInMinutes * MILLISECONDS_IN_A_MINUTE,
         purpose: "Break"
@@ -76,6 +78,7 @@ export function startPom() {
     dispatch(
       setupTimer({
         startedAt: null,
+        type: "pom",
         length:
           getState().settings.pomLengthInMinutes * MILLISECONDS_IN_A_MINUTE
       })
@@ -88,7 +91,8 @@ export function startAction() {
     dispatch(
       setupTimer({
         startedAt: Date.now(),
-        length: 0
+        length: 0,
+        type: "action"
       })
     );
   };
@@ -109,6 +113,7 @@ export function setBreakLength(value) {
 export function setTimerSound(value) {
   return { type: SET_TIMER_SOUND, value };
 }
+
 export function setGoogleClientId(value) {
   return { type: SET_GOOGLE_CLIENT_ID, value };
 }
@@ -116,8 +121,17 @@ export function setGoogleClientId(value) {
 export function setGoogleEnabled(value) {
   return { type: SET_GOOGLE_ENABLED, value };
 }
+
 export function setGoogleSignedIn(value) {
   return { type: SET_GOOGLE_SIGNED_IN, value };
+}
+
+export function setGoogleCalendar(value) {
+  return { type: SET_GOOGLE_CALENDAR, value };
+}
+
+export function setColor(colorType, value) {
+  return { type: SET_COLOR, colorType, value };
 }
 
 export function enqueueSnackbar(notification) {

@@ -1,18 +1,19 @@
 import { createStore, applyMiddleware } from "redux";
-import reducer from "./reducer";
+import reducer, { initialState } from "./reducer";
 import logger from "redux-logger";
 import thunk from "redux-thunk";
 
-export const configureStore = initialState => {
+export const configureStore = () => {
   const persistedState = localStorage.getItem("reduxState")
     ? JSON.parse(localStorage.getItem("reduxState"))
-    : {};
+    : initialState;
+
+  persistedState.settings.googleSignedIn = false;
 
   let store = createStore(
     reducer,
-    { ...persistedState, initialState },
-    // applyMiddleware(logger, thunk)
-    applyMiddleware(thunk)
+    persistedState,
+    applyMiddleware(logger, thunk)
   );
 
   store.subscribe(() => {

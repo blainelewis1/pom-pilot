@@ -13,22 +13,40 @@ import {
   SET_GOOGLE_CLIENT_ID,
   SET_GOOGLE_ENABLED,
   SET_GOOGLE_SIGNED_IN,
+  SET_GOOGLE_CALENDAR,
+  SET_COLOR,
   NOTIFY,
   ADD_TO_CALENDAR
 } from "./actions";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 
-let defaultTimer = {
-  length: 25 * MILLISECONDS_IN_A_MINUTE,
-  purpose: "",
-  startedAt: null,
-  completedAt: null,
-  completed: false,
-  notified: false,
-  addedToCalendar: false
+export const initialState = {
+  timer: {
+    length: 25 * MILLISECONDS_IN_A_MINUTE,
+    purpose: "",
+    startedAt: null,
+    completedAt: null,
+    completed: false,
+    notified: false,
+    addedToCalendar: false,
+    type: "pom"
+  },
+  settings: {
+    pomLengthInMinutes: 25,
+    breakLengthInMinutes: 5,
+    notifications: true,
+    timerSound: "/alarm.mp3",
+    minTime: 1 * MILLISECONDS_IN_A_MINUTE,
+    googleApiKey: "",
+    googleClientId: "",
+    googleEnabled: true,
+    googleSignedIn: false,
+    googleCalendar: "primary",
+    colors: { pom: null, breaking: null, action: null }
+  }
 };
 
-function timer(state = defaultTimer, action) {
+function timer(state = initialState.timer, action) {
   switch (action.type) {
     case START_TIMER:
       let completedAt = undefined;
@@ -46,33 +64,22 @@ function timer(state = defaultTimer, action) {
       return { ...state, purpose: action.value };
 
     case SETUP_TIMER:
-      let newTimerState = { ...defaultTimer };
+      let newTimerState = { ...initialState.timer };
       return { ...newTimerState, ...action.timerValues };
     case NOTIFY:
       return { ...state, notified: true };
     case ADD_TO_CALENDAR:
       return { ...state, addedToCalendar: true };
     case TIMER_COMPLETE:
-      return { ...state, completed: true };
+      completedAt = state.completedAt || Date.now();
+      return { ...state, completed: true, completedAt };
+
     default:
       return state;
   }
 }
 
-function settings(
-  state = {
-    pomLengthInMinutes: 25,
-    breakLengthInMinutes: 5,
-    notifications: true,
-    timerSound: "/alarm.mp3",
-    minTime: 1 * MILLISECONDS_IN_A_MINUTE,
-    googleApiKey: "",
-    googleClientId: "",
-    googleEnabled: true,
-    googleSignedIn: false
-  },
-  action
-) {
+function settings(state = initialState.settings, action) {
   switch (action.type) {
     case SET_GOOGLE_CLIENT_ID:
       return { ...state, googleClientId: action.value };
@@ -88,6 +95,13 @@ function settings(
       return { ...state, googleEnabled: action.value };
     case SET_GOOGLE_SIGNED_IN:
       return { ...state, googleSignedIn: action.value };
+    case SET_GOOGLE_CALENDAR:
+      return { ...state, googleCalendar: action.value };
+    case SET_COLOR:
+      return {
+        ...state,
+        colors: { ...state.colors, [action.colorType]: action.value }
+      };
     default:
       return state;
   }

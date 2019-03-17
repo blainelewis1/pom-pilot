@@ -10,8 +10,8 @@ export const CenteredPaper = styled(Paper)`
   left: 50%;
   transform: translate(-50%, -50%);
 
-  max-width: 600px;
-  width: 100%;
+  max-width: 100%;
+  width: 600px;
   padding: 30px;
 `;
 export const TopRight = styled.div`
@@ -20,6 +20,7 @@ export const TopRight = styled.div`
   right: 0;
   display: inline-block;
 `;
+
 export const ClosableModal = ({ children, ...props }) => {
   return (
     <Modal {...props}>
