@@ -86,7 +86,7 @@ export const Timer = ({
   let seconds = Math.floor((displayTime % MILLISECONDS_IN_A_MINUTE) / 1000);
   let timeString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
-  document.title = `(${timeString}) ${purpose} | Pomodoro App`;
+  document.title = `(${timeString}) ${purpose} | Pom Pilot`;
 
   return (
     <Container>

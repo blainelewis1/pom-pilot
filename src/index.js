@@ -48,9 +48,7 @@ import lightBlue from "@material-ui/core/colors/lightBlue";
 // TODO: visibility, whether or not other people casn see the event.
 // TODO: add meta data to event with some parseable syntax like ```{timesPaused:1}```
 
-/** BUGS */
-
-// TODO: deploy to github
+// TODO : alarm doesn't work on github
 
 const theme = createMuiTheme({
   typography: {
