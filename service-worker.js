@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/pom-pilot/precache-manifest.f55988fb01b20fdc4d1f9fb32910c8c7.js"
+  "/pom-pilot/precache-manifest.80323018ed1c8709b3976eda72a83b74.js"
 );
 
 workbox.clientsClaim();
