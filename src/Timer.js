@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Typography, TextField } from "@material-ui/core";
 import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 import { connect } from "react-redux";
-import { useInterval } from "./utils";
+import { useInterval, useForceUpdate } from "./utils";
 import { setPurpose } from "./actions";
 import styled from "styled-components";
 
@@ -16,6 +16,7 @@ const Container = styled.div`
 
   max-width: 600px;
   width: 100%;
+  padding: 20px;
 `;
 
 const Purpose = styled.div`
@@ -38,13 +39,6 @@ const PurposeTextField = styled(TextField)`
   }
 `;
 
-//create your forceUpdate hook
-function useForceUpdate() {
-  const [value, set] = useState(true); //boolean state
-  return () => set(!value); // toggle the state to force render
-}
-
-// TODO: maybe the timer bit should actually exist outside of the component?
 export const Timer = ({
   purpose,
   startedAt,

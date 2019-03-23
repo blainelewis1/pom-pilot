@@ -13,6 +13,8 @@ export const CenteredPaper = styled(Paper)`
   max-width: 100%;
   width: 600px;
   padding: 30px;
+
+  overflow-y: scroll;
 `;
 export const TopRight = styled.div`
   position: absolute;

@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 
 export function useInterval(callback, delay) {
   const savedCallback = useRef();
@@ -41,4 +41,9 @@ export function useShortcut(matches, action) {
     window.addEventListener("keydown", test);
     return () => window.removeEventListener("keydown", test);
   });
+}
+
+export function useForceUpdate() {
+  const [value, set] = useState(true);
+  return () => set(!value);
 }

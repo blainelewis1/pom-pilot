@@ -43,7 +43,32 @@ export const initialState = {
     googleSignedIn: false,
     googleCalendar: "primary",
     colors: { pom: null, breaking: null, action: null }
-  }
+  },
+
+  /**
+   * A preset can have:
+   * autostart
+   *
+   *
+   */
+  presets: [
+    {
+      autostart: false,
+      length: 0,
+      type: "Action"
+    },
+    {
+      autostart: false,
+      type: "breaking",
+      length: 10 * MILLISECONDS_IN_A_MINUTE,
+      purpose: "Break"
+    },
+    {
+      autostart: false,
+      type: "Pom",
+      length: 10 * MILLISECONDS_IN_A_MINUTE
+    }
+  ]
 };
 
 function timer(state = initialState.timer, action) {
