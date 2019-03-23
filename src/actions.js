@@ -1,4 +1,3 @@
-import { MILLISECONDS_IN_A_MINUTE } from "./constants";
 import notify from "./notify";
 import { addToCalendar } from "./google";
 
@@ -44,7 +43,7 @@ export function setPurpose(value) {
   };
 }
 
-export function setupTimer(timerValues) {
+export function setupPreset(preset) {
   return function(dispatch, getState) {
     if (
       getState().timer.startedAt &&
@@ -54,47 +53,18 @@ export function setupTimer(timerValues) {
       dispatch(addToCalendar());
     }
 
+    let timerValues = { ...preset };
+    delete timerValues.autostart;
+
+    // if (preset.autostart) {
+    //   timerValues.startedAt = Date.now();
+    // }
+
     dispatch({ type: SETUP_TIMER, timerValues });
-  };
-}
 
-export function startBreak() {
-  return function(dispatch, getState) {
-    dispatch(
-      setupTimer({
-        startedAt: Date.now(),
-        type: "breaking",
-        length:
-          getState().settings.breakLengthInMinutes * MILLISECONDS_IN_A_MINUTE,
-        purpose: "Break"
-      })
-    );
-    dispatch(startTimer());
-  };
-}
-
-export function startPom() {
-  return function(dispatch, getState) {
-    dispatch(
-      setupTimer({
-        startedAt: null,
-        type: "pom",
-        length:
-          getState().settings.pomLengthInMinutes * MILLISECONDS_IN_A_MINUTE
-      })
-    );
-  };
-}
-
-export function startAction() {
-  return function(dispatch) {
-    dispatch(
-      setupTimer({
-        startedAt: Date.now(),
-        length: 0,
-        type: "action"
-      })
-    );
+    if (preset.autostart) {
+      dispatch(startTimer());
+    }
   };
 }
 

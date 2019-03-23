@@ -26,7 +26,7 @@ import lightBlue from "@material-ui/core/colors/lightBlue";
 
 /** FUNCTIONAL */
 
-// TODO: add new presets like long break or lunch or whatever...
+// TODO: add ability to add new presets to the settings screen
 
 // TODO: a method of adding new things to redux without clearing local storage, like a deep merge of the default config
 

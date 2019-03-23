@@ -42,33 +42,34 @@ export const initialState = {
     googleEnabled: true,
     googleSignedIn: false,
     googleCalendar: "primary",
-    colors: { pom: null, breaking: null, action: null }
-  },
-
-  /**
-   * A preset can have:
-   * autostart
-   *
-   *
-   */
-  presets: [
-    {
-      autostart: false,
-      length: 0,
-      type: "Action"
-    },
-    {
-      autostart: false,
-      type: "breaking",
-      length: 10 * MILLISECONDS_IN_A_MINUTE,
-      purpose: "Break"
-    },
-    {
-      autostart: false,
-      type: "Pom",
-      length: 10 * MILLISECONDS_IN_A_MINUTE
-    }
-  ]
+    colors: { pom: null, breaking: null, action: null },
+    /**
+     * A preset can have:
+     * autostart
+     * length (0 if it counts upwards)
+     * type : the name of the preset
+     * purpose: a predefined purpose
+     *
+     */
+    presets: [
+      {
+        autostart: false,
+        type: "Pom",
+        length: 25 * MILLISECONDS_IN_A_MINUTE
+      },
+      {
+        autostart: true,
+        length: 0,
+        type: "Action"
+      },
+      {
+        autostart: true,
+        type: "Break",
+        length: 5 * MILLISECONDS_IN_A_MINUTE,
+        purpose: "Break"
+      }
+    ]
+  }
 };
 
 function timer(state = initialState.timer, action) {
